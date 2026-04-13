@@ -1272,7 +1272,7 @@ function buildIsoSVG() {
         <ellipse cx="1275" cy="550" rx="14" ry="18" fill="#3e6c2d"/>
       </g>
 
-      <text x="590" y="215" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#f5c842" opacity=".82" letter-spacing="3">MERIDIAN LOFT</text>
+      <text x="590" y="215" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#f5c842" opacity=".82" letter-spacing="3">CREAM CITY</text>
     </svg>
   `;
 }
@@ -1634,7 +1634,7 @@ function showResult() {
 
     <div class="share-top">
       <div>
-        <div class="share-title" style="color:${profile.color}">Your Meridian Day Snapshot</div>
+        <div class="share-title" style="color:${profile.color}">Your Snapshot</div>
         <div class="share-sub">${profile.summary}</div>
       </div>
       <div class="share-icon" style="background:${profile.color}22;color:${profile.color};border-color:${profile.color}44">
@@ -1655,32 +1655,32 @@ function showResult() {
       ${G.badges.map(badge => `<div class="share-pill">${badge}</div>`).join("")}
     </div>
 
-    <div class="result-sec">
+       <div class="result-sec">
       <div class="rs-label">Where you work best</div>
       <div class="rs-title">The kind of environment where your style tends to land best</div>
-      <div class="rs-body">This connects your result to real teams, project styles, and work environments.</div>
+      <div class="rs-body">This is where your style is most likely to become a strength instead of friction.</div>
 
-      <div class="culture-grid">
+      <div class="culture-grid single">
         <div class="cul-card seek">
           <div class="cul-lbl">You tend to do well in</div>
           <ul class="cul-list">
             ${profile.cultures.fit.map(item => `<li>${item}</li>`).join("")}
           </ul>
         </div>
-
-        <div class="cul-card care">
-          <div class="cul-lbl">Can feel harder when</div>
-          <ul class="cul-list">
-            ${profile.cultures.avoid.map(item => `<li>${item}</li>`).join("")}
-          </ul>
-        </div>
       </div>
     </div>
 
     <div class="result-sec">
-      <div class="rs-label">Keep building</div>
-      <div class="rs-title">A few edges to sharpen next</div>
-      <div class="rs-body">These are the next-level moves suggested by how you handled the day.</div>
+      <div class="rs-label">Growth edge</div>
+      <div class="rs-title">What to watch and what to build next</div>
+      <div class="rs-body">These are the environments and habits that may challenge you most, plus the next-level moves that can strengthen your style.</div>
+
+      <div class="cul-card care growth-watch">
+        <div class="cul-lbl">Can feel harder when</div>
+        <ul class="cul-list">
+          ${profile.cultures.avoid.map(item => `<li>${item}</li>`).join("")}
+        </ul>
+      </div>
 
       <div class="growth-list">
         ${profile.growth.map((g, i) => `
@@ -1736,10 +1736,10 @@ function boot() {
   root.innerHTML = `
     <div id="s-intro" class="screen active">
       <div class="intro-wrap">
-        <div class="intro-kicker">A Day at Meridian</div>
+        <div class="intro-kicker">A Day at Cream City</div>
         <h1 class="intro-h1">It's Monday.<br><span class="muted">Let's see how<br>you work.</span></h1>
         <p class="intro-sub">
-          You're three weeks into a new job at a startup loft. Every run now pulls a different mix of scenes.
+          You're three weeks into a new job at a startup. Every run now pulls a different mix of scenes.
           Your choices shape the rhythm of the day.
         </p>
         <div class="cast-preview" id="cast-preview"></div>
@@ -1753,7 +1753,7 @@ function boot() {
         <div class="world-header">
           <div>
             <div class="world-time" id="world-time">9:04 AM</div>
-            <div class="world-day">Monday — Meridian Loft</div>
+            <div class="world-day">Monday — Cream City</div>
           </div>
           <div class="mood-bar">
             <span class="mood-label">Vibe</span>
