@@ -65,7 +65,7 @@ const CHAPTER_POOLS = [
           {
             icon: "📄",
             main: "Open the doc, read through, form your own view first",
-            eq: 0, iq: 2, sig: "action",
+            eq: 1, iq: 1, sig: "action",
             reaction: {
               type: "good",
               head: "You spot it yourself.",
@@ -151,7 +151,7 @@ const CHAPTER_POOLS = [
           {
             icon: "🧠",
             main: "Give a quick status, then protect your focus block",
-            eq: 0, iq: 2, sig: "independence",
+            eq: 1, iq: 1, sig: "independence",
             reaction: {
               type: "good",
               head: "You manage both clarity and output.",
@@ -198,7 +198,7 @@ const CHAPTER_POOLS = [
           {
             icon: "🧭",
             main: "Ask what the page needs to do before picking",
-            eq: 0, iq: 2, sig: "clarity",
+            eq: 1, iq: 1, sig: "clarity",
             reaction: {
               type: "good",
               head: "The feedback gets sharper fast.",
@@ -271,7 +271,7 @@ const CHAPTER_POOLS = [
           {
             icon: "📊",
             main: "Ask what the launch is trying to prove first",
-            eq: 0, iq: 2, sig: "clarity",
+            eq: 1, iq: 1, sig: "clarity",
             reaction: {
               type: "good",
               head: "The question lands well.",
@@ -366,7 +366,7 @@ const CHAPTER_POOLS = [
           {
             icon: "📝",
             main: "Explain your reasoning before changing anything",
-            eq: 0, iq: 2, sig: "defensiveness",
+            eq: 1, iq: 1, sig: "defensiveness",
             reaction: {
               type: "okay",
               head: "Your thinking is heard, but it still needs work.",
@@ -392,7 +392,7 @@ const CHAPTER_POOLS = [
           {
             icon: "🤝",
             main: "Ask for 10 minutes to talk it through together",
-            eq: 2, iq: 1, sig: "coachability",
+            eq: 1, iq: 1, sig: "coachability",
             reaction: {
               type: "good",
               head: "The conversation saves time.",
@@ -452,7 +452,7 @@ const CHAPTER_POOLS = [
           {
             icon: "🧠",
             main: "Help him draft a short follow-up message",
-            eq: 1, iq: 2, sig: "clarity",
+            eq: 1, iq: 1, sig: "clarity",
             reaction: {
               type: "good",
               head: "It becomes practical fast.",
@@ -525,7 +525,7 @@ const CHAPTER_POOLS = [
           {
             icon: "🔍",
             main: "Look through the latest notes yourself before asking more",
-            eq: 0, iq: 2, sig: "action",
+            eq: 1, iq: 1, sig: "action",
             reaction: {
               type: "good",
               head: "You catch the mismatch.",
@@ -572,7 +572,7 @@ const CHAPTER_POOLS = [
           {
             icon: "🧱",
             main: "Suggest a tighter agenda and time boxes",
-            eq: 0, iq: 2, sig: "clarity",
+            eq: 1, iq: 1, sig: "clarity",
             reaction: {
               type: "good",
               head: "Process wins fast.",
@@ -585,7 +585,7 @@ const CHAPTER_POOLS = [
           {
             icon: "👥",
             main: "Point out that unclear ownership is part of the drift",
-            eq: 1, iq: 2, sig: "prioritize",
+            eq: 1, iq: 1, sig: "prioritize",
             reaction: {
               type: "good",
               head: "The insight lands.",
@@ -654,7 +654,7 @@ const CHAPTER_POOLS = [
           {
             icon: "📣",
             main: "Message everyone with your plan, then tackle the portal first",
-            eq: 1, iq: 2, sig: "prioritize",
+            eq: 1, iq: 1, sig: "prioritize",
             reaction: {
               type: "good",
               head: "Nobody is left wondering.",
@@ -680,7 +680,7 @@ const CHAPTER_POOLS = [
           {
             icon: "📋",
             main: "Ask Sam to set the order of operations",
-            eq: 1, iq: 0, sig: "clarity",
+            eq: 2, iq: 0, sig: "clarity",
             reaction: {
               type: "good",
               head: "Clarity removes guesswork.",
@@ -873,7 +873,7 @@ const CHAPTER_POOLS = [
           {
             icon: "📌",
             main: "Give a three-line summary with status, risk, and next step",
-            eq: 1, iq: 2, sig: "clarity",
+            eq: 1, iq: 1, sig: "clarity",
             reaction: {
               type: "good",
               head: "Exactly right for the moment.",
@@ -899,7 +899,7 @@ const CHAPTER_POOLS = [
           {
             icon: "📄",
             main: "Send a fuller explanation so nothing is misunderstood",
-            eq: 0, iq: 2, sig: "independence",
+            eq: 1, iq: 1, sig: "independence",
             reaction: {
               type: "okay",
               head: "Thorough, but heavier than needed.",
@@ -956,7 +956,7 @@ const ARCHETYPES = [
   },
   {
     name: "The Connector",
-    match: (eq, iq) => eq - iq >= 3,
+    match: (eq, iq) => eq >= 5 && eq - iq >= 2,
     color: "#62c08c",
     icon: "◉",
     summary: "You naturally notice people, emotional tone, and relationship dynamics. You often create trust before others realize it's needed.",
@@ -980,33 +980,8 @@ const ARCHETYPES = [
     ]
   },
   {
-    name: "The Systematic Solver",
-    match: (eq, iq) => iq - eq >= 3,
-    color: "#9f84ef",
-    icon: "◫",
-    summary: "You shine when the problem is concrete and the output matters. You tend to think in systems, structure, and measurable progress.",
-    cultures: {
-      fit: [
-        "Analytical, technical, or process-heavy environments",
-        "Teams where evidence matters",
-        "Roles with measurable outcomes",
-        "Organizations that value precision"
-      ],
-      avoid: [
-        "High-ambiguity roles without clear success metrics",
-        "Environments needing constant emotional attunement",
-        "Teams where influence is mostly informal"
-      ]
-    },
-    growth: [
-      { title: "Bring people into the solution", desc: "Even a strong answer lands better when others understand it and feel considered." },
-      { title: "Ask one context question first", desc: "A simple question about desired outcome can change the direction of your solution." },
-      { title: "Treat emotional cues as data", desc: "Feelings in the room are not noise. They often explain why a strong idea may or may not land." }
-    ]
-  },
-  {
     name: "The Adaptive Operator",
-    match: (eq, iq) => eq >= 4 && iq >= 4,
+    match: (eq, iq) => eq >= 4 && iq >= 4 && Math.abs(eq - iq) <= 3,
     color: "#ea9b57",
     icon: "◎",
     summary: "You adjust to the room, the pressure, and the ask. Your strength is flexibility — especially when situations keep changing.",
@@ -1027,6 +1002,31 @@ const ARCHETYPES = [
       { title: "Define your default", desc: "Adaptability becomes even stronger when it is anchored to one principle you trust." },
       { title: "Separate urgency from importance", desc: "Not everything loud is important. Pause long enough to sort the two." },
       { title: "Say what you think", desc: "There are moments when people need your point of view, not just your balance." }
+    ]
+  },
+  {
+    name: "The Systematic Solver",
+    match: (eq, iq) => iq >= 5 && iq - eq >= 2,
+    color: "#9f84ef",
+    icon: "◫",
+    summary: "You shine when the problem is concrete and the output matters. You tend to think in systems, structure, and measurable progress.",
+    cultures: {
+      fit: [
+        "Analytical, technical, or process-heavy environments",
+        "Teams where evidence matters",
+        "Roles with measurable outcomes",
+        "Organizations that value precision"
+      ],
+      avoid: [
+        "High-ambiguity roles without clear success metrics",
+        "Environments needing constant emotional attunement",
+        "Teams where influence is mostly informal"
+      ]
+    },
+    growth: [
+      { title: "Bring people into the solution", desc: "Even a strong answer lands better when others understand it and feel considered." },
+      { title: "Ask one context question first", desc: "A simple question about desired outcome can change the direction of your solution." },
+      { title: "Treat emotional cues as data", desc: "Feelings in the room are not noise. They often explain why a strong idea may or may not land." }
     ]
   },
   {
