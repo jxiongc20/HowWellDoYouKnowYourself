@@ -751,6 +751,14 @@ body {
   gap: 10px;
 }
 
+.culture-grid.single {
+  grid-template-columns: 1fr;
+}
+
+.growth-watch {
+  margin-bottom: 12px;
+}
+
 .cul-card {
   border-radius: 16px;
   padding: 14px;
@@ -845,6 +853,7 @@ body {
   line-height: 1.5;
   color: var(--text2);
 }
+
 
 .replay-wrap {
   padding-top: 4px;
