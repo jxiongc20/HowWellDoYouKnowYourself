@@ -1,14 +1,16 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8" /> <!--tells the browser what kind of characters/letters to expect. supports basically every character in every language — letters, symbols, emojis, etc.--> 
+ <!--Without this, some characters might show up as weird symbols. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <!--** makes it mobile friendly-->
   <title>A Day at Cream City</title>
-  <link rel="icon" href="data:," />
+  <link rel="icon" href="data:," /> <!--controls the little icon (called a "favicon") that appears in the browser tab next to the title. data:, -->
+  <!--**is basically a placeholder that sets it to nothing, it suppresses the browser's default icon.-->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div id="root"></div>
-  <script src="App.js"></script>
+  <div id="root"></div> <!--display contents of the js-->
+  <script src="App.js"></script> <!--loads the js first and then make it interactive-->
 </body>
 </html>
