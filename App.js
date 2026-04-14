@@ -7,6 +7,7 @@ const CHARS = {
   bg1:   { name: "Mia", role: "", color: "#ea7198", skin: "#e4b193", hair: "#7a4f3a", hairHi: "#9a6b52", shirt: "#d95a84", jacket: "#7a2747", pants: "#2c1b24", shoes: "#181818" },
   bg2:   { name: "Theo", role: "", color: "#62c08c", skin: "#b37e52", hair: "#4b3022", hairHi: "#6a4836", shirt: "#4aa06f", jacket: "#234430", pants: "#232a34", shoes: "#181818" }
 };
+//** a character sheet for every person in the office. Each character has a name, a job title, and a bunch of color codes that tell the game exactly what color to paint their hair, skin, shirt, jacket, pants, and shoes when drawing them on screen. */
 
 const POSITIONS = {
   desk_alex:   { x: 30, y: 37 },
@@ -21,7 +22,10 @@ const POSITIONS = {
   bg1_pos:     { x: 20, y: 47 },
   bg2_pos:     { x: 68, y: 29 }
 };
+//** map of where everyone stands. x and y are percentages, like saying "place Alex 30% from the left and 37% from the top of the screen."*/
 
+//**This is the entire game script — all 3 chapters (Morning, Afternoon, End of Day), each with 4 possible scenes. The pick: 2 means the game randomly*/
+//**picks 2 out of 4 scenes per chapter, so every playthrough feels different. */
 const CHAPTER_POOLS = [
   {
     id: 0,
@@ -928,6 +932,9 @@ const CHAPTER_POOLS = [
   }
 ];
 
+//**At the end eq and iq scores get compared against 5 personality types.*/
+// ** The match function is a rule, like "if your emotional score AND your analytical score are both high, you're the Empathetic Analyst." */
+//**Each archetype also has: A summary of who you are, Cultures that fit you, types of workplaces you'd thrive in, Growth tips — things to work on */
 const ARCHETYPES = [
   {
     name: "The Empathetic Analyst",
@@ -1056,6 +1063,12 @@ const ARCHETYPES = [
   }
 ];
 
+//**G is game's memory, tracks everything in real time:*/
+
+//**eq / iq = running scores, signals = tallying which decision style was used most, */
+//**badges = chapter completion medals, chIdx / scIdx = which chapter and scene you're currently on*/
+//**reacting = a lock that stops you from clicking twice during an animation*/
+//**STORY is the randomized version of the chapters built fresh each time its play. */
 let STORY = [];
 let G = {
   eq: 0,
@@ -1071,22 +1084,35 @@ let G = {
 let charEls = {};
 let bubbleTimer = null;
 
+
 function $(id) {
   return document.getElementById(id);
 }
+//**$(id) — A shortcut. Instead of typing document.getElementById("root") */
+//** every time, it lets you just write $("root"). Saves a lot of typing. */
 
+//**show(id) — Switches which screen is visible (intro → game → results). */
+//** It hides all screens, then shows only the one you want. */
 function show(id) {
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const target = $(id);
   if (target) target.classList.add("active");
 }
 
+//**mk(tag, cls, html) — A factory for building HTML pieces on the fly.*/
+//**Instead of writing 4 lines of code to make a button,*/
+//**you write one: mk("button", "choice-bubble", "Click me") */
 function mk(tag, cls, html) {
   const el = document.createElement(tag);
   if (cls) el.className = cls;
   if (html !== undefined) el.innerHTML = html;
   return el;
 }
+
+//**shuffle(arr): Randomly scrambles an array. */
+// Used to pick different scenes each playthrough. */
+// It uses a classic algorithm called a Fisher-Yates shuffle */
+// basically cutting a deck of cards randomly. */
 
 function shuffle(arr) {
   const copy = [...arr];
@@ -1097,6 +1123,7 @@ function shuffle(arr) {
   return copy;
 }
 
+//**buildRunStory() — Builds this playthrough's unique story by shuffling each chapter's scenes and picking the first 2. */
 function buildRunStory() {
   return CHAPTER_POOLS.map(chapter => {
     const pickedScenes = shuffle(chapter.scenes).slice(0, chapter.pick);
@@ -1110,31 +1137,35 @@ function buildRunStory() {
   });
 }
 
+//**draws each character entirely from code using SVG (Scalable Vector Graphics) — basically 
+// mathematical shapes. Ellipses for the head, paths for the body, rectangles for the neck.*/
+//**All the colors come from that character's entry in CHARS. */
 function svgChar(c, size = 92) {
   return `
     <svg width="${size}" height="${size * 1.24}" viewBox="0 0 92 114" xmlns="http://www.w3.org/2000/svg" class="char-svg">
       <g class="char-rig">
         <ellipse cx="46" cy="108" rx="18" ry="5" fill="rgba(0,0,0,.06)"/>
+        <!-- drop shadow under feet -->
 
-        <!-- legs -->
+        <!-- L/R legs -->
         <path d="M37 70 L34 99 Q34 102 36 102 L44 102 Q46 102 46 99 L47 74 Z" fill="${c.pants}"/>
         <path d="M55 70 L57 99 Q57 102 55 102 L47 102 Q45 102 45 99 L44 74 Z" fill="${c.pants}"/>
 
-        <!-- shoes -->
+        <!-- L/R shoes -->
         <ellipse cx="39" cy="104" rx="7" ry="3.2" fill="${c.shoes}"/>
         <ellipse cx="53" cy="104" rx="7" ry="3.2" fill="${c.shoes}"/>
 
-        <!-- torso -->
+        <!-- Shirt/ torso -->
         <path d="M30 39 Q46 31 62 39 L58 74 Q46 79 34 74 Z" fill="${c.shirt}"/>
 
-        <!-- jacket -->
+        <!-- L/R jacket lapel -->
         <path d="M27 40 Q32 33 39 31 L36 74 Q29 71 26 63 Z" fill="${c.jacket}"/>
         <path d="M65 40 Q60 33 53 31 L56 74 Q63 71 66 63 Z" fill="${c.jacket}"/>
 
         <!-- neck -->
         <rect x="41" y="28" width="10" height="9" rx="4" fill="${c.skin}"/>
 
-        <!-- arms -->
+        <!-- L/R arms -->
         <path d="M30 42 Q20 50 21 62 Q22 68 28 68 L31 67 Q27 56 35 46 Z" fill="${c.skin}"/>
         <path d="M62 42 Q72 49 73 61 Q73 67 67 68 L63 67 Q66 56 58 46 Z" fill="${c.skin}"/>
 
@@ -1144,10 +1175,10 @@ function svgChar(c, size = 92) {
         <!-- base hair -->
         <path d="M29 12 Q31 3 46 3 Q61 3 63 12 Q63 19 58 23 Q54 19 46 19 Q38 19 34 23 Q29 19 29 12 Z" fill="${c.hair}"/>
 
-        <!-- top highlight layer -->
+        <!-- top hair highlight layer -->
         <path d="M33 11 Q37 8 41 6.8 Q44 8 46 8 Q49 8 54 6.8 Q57.5 8 60 11 Q55 9.8 46 9.8 Q37 9.8 33 11 Z" fill="${c.hairHi || c.hair}"/>
 
-        <!-- subtle shine -->
+        <!-- subtle shine on hair -->
         <path d="M35 10.8 Q40 8.6 46 8.6 Q52 8.6 57 10.8"
               stroke="rgba(255,255,255,.14)"
               stroke-width="1"
@@ -1157,45 +1188,47 @@ function svgChar(c, size = 92) {
         <!-- forehead highlight -->
         <ellipse cx="40" cy="14.5" rx="5.8" ry="2.7" fill="rgba(255,255,255,.20)"/>
 
-        <!-- ears -->
+        <!-- L/R ears -->
         <circle cx="29.8" cy="22.5" r="2.1" fill="${c.skin}"/>
         <circle cx="62.2" cy="22.5" r="2.1" fill="${c.skin}"/>
 
-        <!-- eyes -->
+        <!-- L/R eyes -->
         <ellipse cx="40.5" cy="21.2" rx="1.15" ry="1.3" fill="#3a2a22"/>
         <ellipse cx="51.5" cy="21.2" rx="1.15" ry="1.3" fill="#3a2a22"/>
 
-        <!-- brows -->
+        <!-- L/R brows -->
         <path d="M37.8 18.4 Q40.5 17.6 42.8 18.1" stroke="#6a4d3d" stroke-width=".65" fill="none" stroke-linecap="round"/>
         <path d="M49.2 18.1 Q51.5 17.6 54.2 18.4" stroke="#6a4d3d" stroke-width=".65" fill="none" stroke-linecap="round"/>
 
         <!-- nose -->
         <path d="M46 22.8 L45.4 25.2 Q46 25.5 46.6 25.2 Z" fill="rgba(140,80,58,.06)"/>
 
-        <!-- mouth -->
+        <!-- mouth/smile -->
         <path d="M41.8 29.2 Q46 30.8 50.2 29.2" stroke="#9a645f" stroke-width=".95" fill="none" stroke-linecap="round"/>
       </g>
     </svg>
   `;
 }
 
+//**builds the entire isometric office scene — the floor tiles, walls, desks, lamps, bean bags, and the "CREAM CITY" sign.*/
+//**It's one big SVG drawing made of shapes, gradients, and polygons. */
 function buildIsoSVG() {
   return `
     <svg viewBox="0 0 1440 900" xmlns="http://www.w3.org/2000/svg" class="iso-svg">
-      <defs>
+      <defs> <!-- defines reusable gradients and patterns before anything is drawn -->
         <linearGradient id="wallLeft" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stop-color="#b17652"/>
           <stop offset="100%" stop-color="#81472a"/>
-        </linearGradient>
+        </linearGradient> <!-- wallLeft / wallRight gradients — give the walls a darker-at-bottom shading so they look 3D-->
         <linearGradient id="wallRight" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0%" stop-color="#c78b5e"/>
           <stop offset="100%" stop-color="#985634"/>
         </linearGradient>
-        <radialGradient id="lampGlow">
+        <radialGradient id="lampGlow"> <!-- the soft warm circle of light under each ceiling lamp -->
           <stop offset="0%" stop-color="rgba(255,240,190,.75)"/>
           <stop offset="100%" stop-color="rgba(255,240,190,0)"/>
         </radialGradient>
-        <pattern id="tilePattern" width="80" height="40" patternUnits="userSpaceOnUse">
+        <pattern id="tilePattern" width="80" height="40" patternUnits="userSpaceOnUse"> <!-- tilePattern — a repeating diamond tile pattern for the floor, drawn once and tiled automatically-->
           <path d="M0 20 L40 0 L80 20 L40 40 Z" fill="#c4a078"/>
           <path d="M0 20 L40 0 L80 20 L40 40 Z" fill="none" stroke="#b18961" stroke-width="1"/>
         </pattern>
@@ -1204,31 +1237,31 @@ function buildIsoSVG() {
       <rect width="1440" height="900" fill="#211613"/>
       <rect width="1440" height="900" fill="url(#lampGlow)" opacity=".08"/>
 
-      <polygon points="120,470 720,170 1320,470 720,760" fill="url(#tilePattern)"/>
-      <polygon points="120,470 720,760 720,790 120,500" fill="#6e3b20" opacity=".3"/>
+      <polygon points="120,470 720,170 1320,470 720,760" fill="url(#tilePattern)"/> <!--The floor polygon — a big diamond shape filled with that tile pattern-->
+      <polygon points="120,470 720,760 720,790 120,500" fill="#6e3b20" opacity=".3"/> <!--These are the dark strips along the bottom edges of the floor that make it look like it has thickness and depth.-->
       <polygon points="720,760 1320,470 1320,500 720,790" fill="#814828" opacity=".32"/>
 
-      <polygon points="120,470 120,200 720,170 720,440" fill="url(#wallLeft)"/>
+      <polygon points="120,470 120,200 720,170 720,440" fill="url(#wallLeft)"/> <!--Left wall and right wall. Each is a parallelogram. They use the gradients defined in <defs> to look darker at the bottom and lighter at the top.-->
       <polygon points="720,440 720,170 1320,470 1320,200" fill="url(#wallRight)"/>
 
-      <g opacity=".22" stroke="#5d3018" stroke-width="2">
+      <g opacity=".22" stroke="#5d3018" stroke-width="2"> <!--Four horizontal lines drawn across the left wall only. Very faint (opacity=".22") so they just add subtle texture.-->
         <line x1="120" y1="250" x2="720" y2="220"/>
         <line x1="120" y1="310" x2="720" y2="280"/>
         <line x1="120" y1="370" x2="720" y2="340"/>
         <line x1="120" y1="430" x2="720" y2="400"/>
       </g>
 
-      <g>
+      <g> <!-- Desks -->
         <polygon points="240,250 400,240 400,355 240,365" fill="#42657e" opacity=".55"/>
         <polygon points="240,250 400,240 400,355 240,365" fill="none" stroke="#9fc3de" stroke-width="3" opacity=".45"/>
       </g>
 
-      <g>
-        <polygon points="1030,285 1185,315 1185,425 1030,397" fill="#42657e" opacity=".55"/>
-        <polygon points="1030,285 1185,315 1185,425 1030,397" fill="none" stroke="#9fc3de" stroke-width="3" opacity=".45"/>
+      <g><!-- The three desks on the right side -->
+        <polygon points="1030,285 1185,315 1185,425 1030,397" fill="#42657e" opacity=".55"/> <!-- each desk is a polygon with a solid fill and a stroke outline. The fill is the main color, the stroke adds definition and makes it pop a little more. -->
+        <polygon points="1030,285 1185,315 1185,425 1030,397" fill="none" stroke="#9fc3de" stroke-width="3" opacity=".45"/> 
       </g>
 
-      <g>
+      <g> <!-- Lamps — each lamp is a line for the cord, a circle for the bulb, and a big soft circle with a radial gradient for the glow on the floor. The colors come from the character color palette, so they match the vibe of the office. -->
         <line x1="460" y1="165" x2="460" y2="245" stroke="#8d7458" stroke-width="3"/>
         <circle cx="460" cy="258" r="24" fill="#f5e7a9" opacity=".9"/>
         <circle cx="460" cy="258" r="70" fill="url(#lampGlow)" opacity=".22"/>
@@ -1242,7 +1275,7 @@ function buildIsoSVG() {
         <circle cx="980" cy="268" r="70" fill="url(#lampGlow)" opacity=".22"/>
       </g>
 
-      <g>
+      <g> <!-- Desks: Three desks, each in their own <g>. Each desk is two polygons — the lighter brown one is the top surface you'd put things on, and the darker brown one is the side face giving it that 3D isometric depth. -->
         <polygon points="250,490 370,430 465,480 345,542" fill="#92613d"/>
         <polygon points="250,490 250,455 370,395 370,430" fill="#6f4528"/>
       </g>
@@ -1257,12 +1290,12 @@ function buildIsoSVG() {
         <polygon points="980,500 980,466 1100,406 1100,440" fill="#6f4528"/>
       </g>
 
-      <g>
+      <g> <!-- Bean bags — each is two ellipses, a darker one for the shadow and a lighter one on top for the main color. one purple, one blue. The overlap makes them look like two separate bean bags sitting next to each other. -->
         <ellipse cx="300" cy="650" rx="72" ry="42" fill="#7f3d58"/>
         <ellipse cx="390" cy="685" rx="62" ry="36" fill="#355482"/>
       </g>
 
-      <g>
+      <g> <!-- Plants — each is a group of ellipses for the leaves, the wide flat dark one is the pot, and the taller narrower lighter one sitting on top is the leaves. The two layers give the plants more depth and make them pop against the background. -->
         <ellipse cx="180" cy="560" rx="18" ry="8" fill="#213719"/>
         <ellipse cx="180" cy="550" rx="14" ry="18" fill="#3e6c2d"/>
       </g>
@@ -1272,16 +1305,21 @@ function buildIsoSVG() {
         <ellipse cx="1275" cy="550" rx="14" ry="18" fill="#3e6c2d"/>
       </g>
 
+      <!-- The "CREAM CITY" sign on the back wall. It's just text, but it's big and bright so it stands out and gives the office some character. The font is Inter, a clean modern sans-serif that fits the vibe of the space. The fill color is a warm yellow from the palette, and it has a little opacity so it's not too harsh against the wall. -->
       <text x="590" y="215" font-family="Inter, Arial, sans-serif" font-size="24" font-weight="800" fill="#f5c842" opacity=".82" letter-spacing="3">CREAM CITY</text>
     </svg>
   `;
 }
-
+//**This makes Alex slightly bigger than everyone else because Alex is you, the player, so they need*/
+//**to stand out a little. The size scales with the screen width (stageW * 0.09) but is clamped*/ 
+//**between a minimum and maximum so Alex never gets absurdly tiny or huge on different screen sizes.*/ 
+// Math.min and Math.max are just guardrails. */
 function getCharSize(key, stageW) {
   if (key === "alex") return Math.max(92, Math.min(132, stageW * 0.09));
   return Math.max(82, Math.min(118, stageW * 0.082));
 }
 
+//**placeChar(key, posKey, mood): Drops a character onto the screen at their starting position with their mood emoji floating above them */
 function placeChar(key, posKey, mood) {
   const stage = $("iso-stage");
   const stageW = stage.offsetWidth || 1280;
@@ -1316,7 +1354,8 @@ function placeChar(key, posKey, mood) {
   const moodEl = $("mood-" + key);
   if (moodEl) moodEl.textContent = mood || "😊";
 }
-
+//**moveChar(key, posKey, newMood, onDone) — Animates a character walking to a new position. The walk CSS class triggers a walking animation, */
+//**then it's removed after 760 milliseconds (three-quarters of a second). */
 function moveChar(key, posKey, newMood, onDone) {
   const el = charEls[key];
   if (!el) {
@@ -1348,11 +1387,15 @@ function moveChar(key, posKey, newMood, onDone) {
   }, 760);
 }
 
+//** Removes all speech bubbles from the screen. */
 function clearSpeechBubbles() {
   document.querySelectorAll(".speech-bubble").forEach(b => b.remove());
   clearTimeout(bubbleTimer);
 }
 
+//**showBubble(key, text, duration) — Figures out where a character is on screen, then places a speech bubble next to them. */
+//**It checks whether the character is on the left or right side of the screen so the bubble always appears in the right direction. */
+//**If you pass null as duration, the bubble stays until manually removed. */
 function showBubble(key, text, duration = 3500) {
   clearSpeechBubbles();
 
@@ -1378,7 +1421,7 @@ function showBubble(key, text, duration = 3500) {
   let left;
   let top = Math.max(charMidY - 24, 16);
 
-  // Prefer putting bubble on the right side of the character
+  // If character is on left side, bubble goes to the right. If character is on right side, bubble goes to the left.
   if (charCenterX < stageW * 0.62) {
     left = charCenterX + gap;
     bubble.classList.add("left");
@@ -1387,7 +1430,9 @@ function showBubble(key, text, duration = 3500) {
     bubble.classList.add("right");
   }
 
-  // Keep on screen
+  // Keep bubble on screen with some padding on each side clamp the bubble's position so it never 
+  // goes off the edge of the screen — the Math.max and Math.min act as invisible walls keeping it 
+  // always fully visible.
   left = Math.max(10, Math.min(left, stageW - bubbleWidth - 10));
   top = Math.max(16, Math.min(top, stageH - 90));
 
@@ -1402,7 +1447,10 @@ function showBubble(key, text, duration = 3500) {
     }, duration);
   }
 }
-
+//**controls the "Vibe" bar at the top of the game screen — those 6 little dots.*/
+//**It adds up your total eq + iq score, figures out what fraction of the maximum (14) you've earned,*/
+//**and lights up that many dots. So if you've made great choices all day, more dots glow. */
+//**It's a visual pulse check on how the day is going. */
 function updateMoodPips() {
   const total = G.eq + G.iq;
   const pips = document.querySelectorAll(".mood-pip");
@@ -1414,6 +1462,8 @@ function updateMoodPips() {
   });
 }
 
+//**This is a cleanup crew — before loading any new scene or card, it wipes all four UI layers */
+//** completely blank so nothing from the previous scene bleeds through. */
 function clearOverlays() {
   $("scene-overlay").innerHTML = "";
   $("choice-bubbles").innerHTML = "";
@@ -1421,6 +1471,8 @@ function clearOverlays() {
   $("chapter-overlay").innerHTML = "";
 }
 
+//** Resets everything and starts fresh.*/
+//**Builds the randomized story, zeroes out all scores, and shows the first chapter card. */
 function startGame() {
   STORY = buildRunStory();
 
@@ -1441,6 +1493,7 @@ function startGame() {
   showChapterCard();
 }
 
+//**Shows the big card between chapters (e.g. "Monday Morning — Your coffee's getting cold"). */
 function showChapterCard() {
   const ch = STORY[G.chIdx];
   $("world-time").textContent = ch.time;
@@ -1459,12 +1512,15 @@ function showChapterCard() {
   holder.appendChild(card);
 }
 
+//**Dismisses that card and loads the first scene. */
 function beginChapter() {
   $("chapter-overlay").innerHTML = "";
   G.scIdx = 0;
   setupScene();
 }
 
+//**Places all characters, triggers the event character walking over, */
+// **shows their speech bubble, then calls renderScene. */
 function setupScene() {
   const ch = STORY[G.chIdx];
   const sc = ch.scenes[G.scIdx];
@@ -1478,6 +1534,11 @@ function setupScene() {
   const setup = sc.setup || [];
   setup.forEach(item => placeChar(item.char, item.pos, item.mood));
 
+  //**SetTimeout is a built-in timer — it waits a set number of milliseconds before doing something.*/
+  //**The outer one waits 300ms (about a third of a second) before moving the character, so the*/
+  //**scene doesn't feel instant and jarring. The inner one waits another 300ms after the speech*/ 
+  //**bubble appears before showing the choice buttons, so everything staggers in naturally instead*/
+  //**of all appearing at once.  */
   setTimeout(() => {
     if (sc.event) {
       const ev = sc.event;
@@ -1491,6 +1552,7 @@ function setupScene() {
   }, 300);
 }
 
+//**Displays the narrator text, the prompt question, and the 4 choice buttons. */
 function renderScene() {
   const ch = STORY[G.chIdx];
   const sc = ch.scenes[G.scIdx];
@@ -1519,6 +1581,12 @@ function renderScene() {
   });
 }
 
+//** Reacting = Runs when you click a choice. Adds eq/iq points, records your signal,*/ 
+// updates the mood bar, and triggers the reaction animation. */
+//**g.reacting return; g.reacting = true = is a guard clause, if the game is already processing a choice*/ 
+//**(animations are running, reaction card is showing), this immediately exits the function and*/ 
+//**ignores the click. The second line flips the lock on. Together they prevent a player from*/ 
+//**clicking two choices at the same time and breaking the game. */
 function handleChoice(index) {
   if (G.reacting) return;
   G.reacting = true;
@@ -1526,14 +1594,25 @@ function handleChoice(index) {
   const ch = STORY[G.chIdx];
   const sc = ch.scenes[G.scIdx];
   const choice = sc.choices[index];
-
+//**The || 0 part is a safety net — if a choice somehow has no eq value defined, it defaults to 0*/
+//**instead of breaking. The signals line is a counter — if you've never used "clarity" before it*/
+//**starts at 0, then adds 1. If you've used it before it just adds another 1 on top. It's how the*/ 
+//**game tracks your patterns of behavior across all your choices, not just your total score. */
   G.eq += choice.eq || 0;
   G.iq += choice.iq || 0;
-
+//**|| 0 part is a safety net, if a choice somehow has no eq value defined, it defaults to 0*/ 
+//**instead of breaking. The signals line is a counter — if you've never used "clarity" before it*/ 
+//**starts at 0, then adds 1. If you've used it before it just adds another 1 on top. It's how the*/ 
+//**game tracks your patterns of behavior across all your choices, not just your total score. */
   if (choice.sig) {
     G.signals[choice.sig] = (G.signals[choice.sig] || 0) + 1;
   }
 
+  //**This updates Alex's floating emoji above their character after each choice. */
+  //**Each choice in the data has an alexMood assigned to it — so depending on what you picked,*/ 
+  //**Alex might look confident 😌, happy 😄, or a bit flustered 😅. The if (alexMood) check is*/ 
+  //**just a safety measure — only update the emoji if that element actually exists on screen at*/ 
+  //**that moment. */
   G.alexMood = choice.alexMood || "😊";
   updateMoodPips();
 
@@ -1554,6 +1633,10 @@ function handleChoice(index) {
   setTimeout(() => showReaction(choice), 550);
 }
 
+//**changes the label on the continue button depending on where you are in the game. If you're*/
+//**mid-chapter it says "Continue the day." If you just finished a chapter it says "Next chapter."*/
+//  If it's the very last scene of the whole game it says "See your day snapshot." */
+// Same button, three different labels depending on context. */
 function getContinueLabel() {
   const ch = STORY[G.chIdx];
   const isLastScene = G.scIdx >= ch.scenes.length - 1;
@@ -1564,6 +1647,7 @@ function getContinueLabel() {
   return "Continue the day";
 }
 
+//**Shows the outcome card (the green/grey box that appears after you choose) and the continue button. */
 function showReaction(choice) {
   const reaction = choice.reaction;
   $("choice-bubbles").innerHTML = "";
@@ -1581,6 +1665,7 @@ function showReaction(choice) {
   `;
 }
 
+//**Decides what happens next: go to next scene, next chapter, or the results screen. */
 function advanceAfterReaction() {
   const ch = STORY[G.chIdx];
   const isLastScene = G.scIdx >= ch.scenes.length - 1;
@@ -1605,6 +1690,8 @@ function advanceAfterReaction() {
   }
 }
 
+//**Looks at which decision styles you used most (e.g. "clarity" 3 times, "action" 2 times) */
+// **and returns the top 3 as readable labels. */
 function getTopSignals(limit = 3) {
   const entries = Object.entries(G.signals).sort((a, b) => b[1] - a[1]);
   const labels = {
@@ -1618,6 +1705,8 @@ function getTopSignals(limit = 3) {
   return entries.slice(0, limit).map(([key]) => labels[key] || key);
 }
 
+//**Finds your archetype by checking your eq/iq scores against each archetype's match rule, */
+// then builds the full results card for your personality type, where you work best, growth tips, and badges. */
 function showResult() {
   show("s-result");
 
@@ -1711,6 +1800,7 @@ function showResult() {
   rc.appendChild(wrap);
 }
 
+//**If you resize your browser window, this redraws all the characters so they stay in the right positions at the new size. */
 function resizeScene() {
   const gameScreen = $("s-game");
   if (!gameScreen || !gameScreen.classList.contains("active")) return;
@@ -1729,7 +1819,9 @@ function resizeScene() {
     showBubble(scene.event.char, scene.event.bubble, null);
   }
 }
-
+//**the very first function that runs. It builds the entire HTML of the game from scratch:*/
+//  the intro screen, the game screen, and the results screen, and injects it all into that empty*/
+//  <div id="root"> from your HTML file. That's why the HTML was empty — this fills it in. */
 function boot() {
   const root = $("root");
 
@@ -1744,7 +1836,6 @@ function boot() {
         </p>
         <div class="cast-preview" id="cast-preview"></div>
         <button class="intro-cta" onclick="startGame()">Start the day →</button>
-        <p class="intro-note">Each playthrough now uses 6 scenes chosen from 12 total scene options.</p>
       </div>
     </div>
 
@@ -1778,7 +1869,10 @@ function boot() {
       <div id="result-container"></div>
     </div>
   `;
-
+//**this builds those little character chips on the intro screen — the ones showing Priya, Sam, Kai,*/
+//**and Jordan before you start playing. Each chip has a colored circle with the character's first*/
+//**initial and their job title underneath. The + "22" at the end of the color code adds */
+//**transparency to the background circle so it's a soft tint rather than a solid color. */
   const castPreview = $("cast-preview");
   ["priya", "sam", "kai", "jordan"].forEach(key => {
     const c = CHARS[key];
@@ -1797,11 +1891,16 @@ function boot() {
     castPreview.appendChild(chip);
   });
 }
-
+//**(window.startGame = startGame) so that the onclick */
+//**buttons in the HTML can actually find and call them. */
+//**These three lines manually pin those functions to the window so the browser can always find them when a button is clicked.*/
+//**Without these lines, clicking any button would throw an error.*/
 window.startGame = startGame;
 window.beginChapter = beginChapter;
 window.advanceAfterReaction = advanceAfterReaction;
 
 window.addEventListener("resize", resizeScene);
-
+//**telling the browser "hey, whenever someone resizes their window, automatically run resizeScene*/ 
+//**for me." Without this line, resizeScene would just sit there doing nothing. This line is what*/ 
+//**actually connects the browser action (resizing) to the function that responds to it. */
 boot();
